@@ -1,5 +1,14 @@
 <?php
 /**
+ * The child theme version, read from its own style.css so it cannot drift
+ * from the version WordPress shows.
+ */
+if ( ! defined( 'PROMOS_LITE_VERSION' ) ) {
+	$promos_lite_theme = wp_get_theme( get_stylesheet() );
+	define( 'PROMOS_LITE_VERSION', $promos_lite_theme->get( 'Version' ) );
+}
+
+/**
  * Recommended way to include parent theme styles.
  * (Please see http://codex.wordpress.org/Child_Themes#How_to_Create_a_Child_Theme)
  *
@@ -8,9 +17,26 @@
  * Loads the child theme textdomain.
  */
 function promos_lite_load_language() {
-    load_child_theme_textdomain( 'promos-lite' );
+	load_child_theme_textdomain( 'promos-lite', get_stylesheet_directory() . '/languages' );
 }
 add_action( 'after_setup_theme', 'promos_lite_load_language' );
+
+/**
+ * Child theme setup.
+ */
+function promos_lite_setup() {
+	add_theme_support(
+		'custom-background',
+		apply_filters(
+			'promos_lite_custom_background_args',
+			array(
+				'default-color' => 'ffffff',
+				'default-image' => '',
+			)
+		)
+	);
+}
+add_action( 'after_setup_theme', 'promos_lite_setup' );
 
 /**
  * Enqueue Style for child theme.
@@ -18,24 +44,40 @@ add_action( 'after_setup_theme', 'promos_lite_load_language' );
 add_action( 'wp_enqueue_scripts', 'promos_lite_enqueue_scripts');
 function promos_lite_enqueue_scripts() {
 
-    $parent_style = 'promos-style-child';
-    $promos_lite_version = wp_get_theme(get_template())->get( 'Version' );
+    $promos_lite_parent_version = wp_get_theme( get_template() )->get( 'Version' );
 
-    /*google font  */
-	require_once get_theme_file_path( 'inc/wptt-webfont-loader.php' );
+    /*
+     * The child's own faces, under the child's own handle. This used to claim
+     * the parent's 'promos-fonts' handle, which discarded the parent's bundled
+     * fonts.css and left Lato and Lora - asked for in ten rules of the parent
+     * stylesheet - with no @font-face at all.
+     */
+    require_once get_theme_file_path( 'inc/wptt-webfont-loader.php' );
 
-    // Load the webfont.
-     wp_enqueue_style(
-         'promos-fonts',
-         wptt_get_webfont_url( 'https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&display=swap' ),
-         array(),
-         '1.0'
-     ); 
+    wp_enqueue_style(
+        'promos-lite-fonts',
+        wptt_get_webfont_url( 'https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,800&display=swap' ),
+        array(),
+        PROMOS_LITE_VERSION
+    );
 
-    wp_enqueue_style( 'bootstrap-css', get_template_directory_uri() . '/css/bootstrap.css', array(), '' );
-    wp_enqueue_style( 'grid-css', get_template_directory_uri() . '/css/bootstrap.css', array(), '4.5.0' );
-    wp_enqueue_style('promos-style', get_template_directory_uri() . '/style.css' );
-    wp_enqueue_style( 'promos-blog-style', get_stylesheet_directory_uri() . '/style.css', array(), $promos_lite_version );
+    /*
+     * Bootstrap is the parent's to enqueue, and it already does, as 'grid-css'.
+     * This file used to enqueue the same stylesheet twice over.
+     */
+    wp_register_style(
+        'promos-style',
+        get_template_directory_uri() . '/style.css',
+        array(),
+        $promos_lite_parent_version
+    );
+
+    wp_enqueue_style(
+        'promos-lite-style',
+        get_stylesheet_directory_uri() . '/style.css',
+        array( 'promos-style', 'grid-css' ),
+        PROMOS_LITE_VERSION
+    );
 }
 
 /**
