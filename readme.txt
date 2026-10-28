@@ -25,20 +25,16 @@ A perfect theme for blog and magazine site. This theme has search option, multip
 
 == Changelog ==
 = 1.0.2 - August 24 2026 =
-
-Fixed
-* The child claimed the handle 'promos-fonts', which the parent already uses for its own bundled fonts.css. A child's enqueue callback runs first, so the child's registration won and the parent's was discarded - and the child's URL supplies only Karla and Playfair Display. The parent's stylesheet asks for Lato in six rules and Lora in four, and neither face was being served at all; measured in the browser, they were simply not declared. The child's faces have their own handle now, so both stylesheets load
-* css/bootstrap.css was enqueued twice by this file, once as 'bootstrap-css' and again as 'grid-css' - the same stylesheet under two handles - so every page downloaded 184 KB of Bootstrap twice. 'grid-css' is the parent's own handle, so registering it here also replaced the parent's version with a hard-coded '4.5.0'. The parent enqueues that file already and the child needs neither line
-* 'bootstrap-css' carried '' as its version, which WordPress treats as a string rather than as "no version", so that copy went out as bootstrap.css?ver=7.1
-* The child stylesheet was enqueued under the handle 'promos-blog-style' - a different theme's name, copied in along with the rest of the file
-* The parent's 'promos-style' handle was registered here with no version, so WordPress substituted its own and the parent stylesheet was served as style.css?ver=7.1. It carries the parent's version now. The handle does still have to be registered here, because the parent enqueues it with get_stylesheet_uri(), which on a child install resolves to this theme's style.css
-* $parent_style was assigned and never used
-* The child theme's text domain was loaded without being told where its language files are
-* style.css lists custom-background as a theme tag, but the theme never called add_theme_support() for it, so the Background control never appeared in the Customizer and the tag was a claim the theme did not honour
-
-Other
-* Added languages/promos-lite.pot
-* Tested up to WordPress 7.1
+* Fixed: child fonts overrode the parent's fonts.css (Lato and Lora missing).
+* Fixed: bootstrap.css was enqueued twice.
+* Fixed: empty version on the bootstrap handle.
+* Fixed: child stylesheet used another theme's handle.
+* Fixed: parent stylesheet was enqueued without a version.
+* Fixed: unused $parent_style variable.
+* Fixed: child text domain loaded without a language path.
+* Added: custom-background theme support.
+* Added: languages/promos-lite.pot
+* Tested with WP 7.1
 
 = 1.0.1 - July 12 2022 =
 * Remove commented codes

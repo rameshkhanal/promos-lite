@@ -1,7 +1,6 @@
 <?php
 /**
- * The child theme version, read from its own style.css so it cannot drift
- * from the version WordPress shows.
+ * Child theme version, used for asset cache busting.
  */
 if ( ! defined( 'PROMOS_LITE_VERSION' ) ) {
 	$promos_lite_theme = wp_get_theme( get_stylesheet() );
@@ -46,12 +45,7 @@ function promos_lite_enqueue_scripts() {
 
     $promos_lite_parent_version = wp_get_theme( get_template() )->get( 'Version' );
 
-    /*
-     * The child's own faces, under the child's own handle. This used to claim
-     * the parent's 'promos-fonts' handle, which discarded the parent's bundled
-     * fonts.css and left Lato and Lora - asked for in ten rules of the parent
-     * stylesheet - with no @font-face at all.
-     */
+    // Child theme webfonts.
     require_once get_theme_file_path( 'inc/wptt-webfont-loader.php' );
 
     wp_enqueue_style(
@@ -61,10 +55,7 @@ function promos_lite_enqueue_scripts() {
         PROMOS_LITE_VERSION
     );
 
-    /*
-     * Bootstrap is the parent's to enqueue, and it already does, as 'grid-css'.
-     * This file used to enqueue the same stylesheet twice over.
-     */
+    // Bootstrap is enqueued by the parent.
     wp_register_style(
         'promos-style',
         get_template_directory_uri() . '/style.css',
